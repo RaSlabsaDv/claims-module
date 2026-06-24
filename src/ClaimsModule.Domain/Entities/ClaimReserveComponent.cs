@@ -103,10 +103,3 @@ public sealed class ClaimReserveComponent : BaseEntity
             _               => ApprovalLevel.Manager
         };
 }
-
-public enum ApprovalLevel
-{
-    AutoApproved,
-    Supervisor,
-    Manager
-}
