@@ -89,11 +89,6 @@ public sealed class ClaimConfiguration : BaseEntityConfiguration<Claim>
             .HasForeignKey(e => e.ClaimId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasMany(e => e.AuditLogs)
-            .WithOne(e => e.Claim)
-            .HasForeignKey(e => e.ClaimId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         // Policy FK (nullable — simulated policy table)
         builder.HasOne(e => e.Policy)
             .WithMany()
@@ -112,9 +107,6 @@ public sealed class ClaimConfiguration : BaseEntityConfiguration<Claim>
             .UsePropertyAccessMode(PropertyAccessMode.Field);
 
         builder.Navigation(e => e.Documents)
-            .UsePropertyAccessMode(PropertyAccessMode.Field);
-
-        builder.Navigation(e => e.AuditLogs)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

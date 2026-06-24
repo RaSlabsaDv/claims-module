@@ -55,5 +55,10 @@ public sealed class ClaimAuditLogConfiguration : IEntityTypeConfiguration<ClaimA
         builder.HasIndex(e => e.CreatedAt);
 
         // Immutable — без query filter, без soft delete
+
+        builder.HasOne(e => e.Claim)
+            .WithMany()
+            .HasForeignKey(e => e.ClaimId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
