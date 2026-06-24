@@ -14,6 +14,7 @@ public sealed class LossEvent : BaseEntity
     public decimal? EstimatedLossAmount { get; private set; }
     public DateTimeOffset ReportDate { get; private set; }
     public string? PoliceReportNumber { get; private set; }
+    public CauseOfLossCode CauseOfLossCodeRef { get; private set; } = default!;
 
     // EF Core
     private LossEvent() { }

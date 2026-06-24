@@ -58,6 +58,9 @@ public sealed class Claim : BaseEntity
     public IReadOnlyList<ClaimDocument> Documents => _documents.AsReadOnly();
     public IReadOnlyList<ClaimAuditLog> AuditLogs => _auditLogs.AsReadOnly();
 
+    public LossEvent? LossEvent { get; private set; }
+    public Policy? Policy { get; private set; }
+
     // EF Core
     private Claim() { }
 
