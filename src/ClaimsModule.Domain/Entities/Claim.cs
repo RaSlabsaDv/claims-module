@@ -50,13 +50,11 @@ public sealed class Claim : BaseEntity
     private readonly List<ClaimRiskObject> _riskObjects = [];
     private readonly List<ClaimReserveComponent> _reserves = [];
     private readonly List<ClaimDocument> _documents = [];
-    private readonly List<ClaimAuditLog> _auditLogs = [];
 
     public IReadOnlyList<ClaimParty> Parties => _parties.AsReadOnly();
     public IReadOnlyList<ClaimRiskObject> RiskObjects => _riskObjects.AsReadOnly();
     public IReadOnlyList<ClaimReserveComponent> Reserves => _reserves.AsReadOnly();
     public IReadOnlyList<ClaimDocument> Documents => _documents.AsReadOnly();
-    public IReadOnlyList<ClaimAuditLog> AuditLogs => _auditLogs.AsReadOnly();
 
     public LossEvent? LossEvent { get; private set; }
     public Policy? Policy { get; private set; }
