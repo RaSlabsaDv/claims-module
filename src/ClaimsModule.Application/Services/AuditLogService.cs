@@ -2,7 +2,7 @@ using System.Text.Json;
 using ClaimsModule.Application.Common.Interfaces;
 using ClaimsModule.Domain.Entities;
 
-namespace ClaimsModule.Infrastructure.Services;
+namespace ClaimsModule.Application.Services;
 
 public sealed class AuditLogService(
     IUnitOfWork unitOfWork,
