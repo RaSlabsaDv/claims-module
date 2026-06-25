@@ -14,4 +14,6 @@ public interface IReserveRepository
 
     // Aggregate total для перевірки $10M ліміту (BR-R-05)
     Task<decimal> GetAggregateTotalByClaimAsync(Guid claimId, CancellationToken ct = default);
+
+    Task<int> GetNextChangeSequenceAsync(Guid reserveId, CancellationToken ct = default);
 }

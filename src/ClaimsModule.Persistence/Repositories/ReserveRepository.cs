@@ -36,4 +36,10 @@ public sealed class ReserveRepository(ClaimsDbContext context) : IReserveReposit
             .AsNoTracking()
             .Where(r => r.ClaimId == claimId && r.Status == ReserveComponentStatus.Active)
             .SumAsync(r => r.CurrentAmount, ct);
+
+    public async Task<int> GetNextChangeSequenceAsync(Guid reserveId, CancellationToken ct = default)
+        => (await context.ReserveHistories
+            .AsNoTracking()
+            .Where(t => t.ReserveComponentId == reserveId)
+            .MaxAsync(t => (int?)t.ChangeSequence, ct) ?? 0) + 1;
 }
