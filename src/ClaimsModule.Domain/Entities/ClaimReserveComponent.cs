@@ -21,6 +21,10 @@ public sealed class ClaimReserveComponent : BaseEntity
     private readonly List<ReserveHistory> _transactions = [];
     public IReadOnlyList<ReserveHistory> Transactions => _transactions.AsReadOnly();
 
+    public bool ManagerOverrideFlag { get; private set; }
+    public DateTimeOffset? ManagerOverrideAt { get; private set; }
+    public Guid? ManagerOverrideByUserId { get; private set; }
+
     // EF Core
     private ClaimReserveComponent() { }
 
@@ -103,4 +107,12 @@ public sealed class ClaimReserveComponent : BaseEntity
             <= ReserveThresholds.ManagerLimit       => ApprovalLevel.Manager,
             _                                       => ApprovalLevel.Manager
         };
+
+    public void SetManagerOverride(Guid managerId)
+{
+    ManagerOverrideFlag = true;
+    ManagerOverrideAt = DateTimeOffset.UtcNow;
+    ManagerOverrideByUserId = managerId;
+    SetUpdated(managerId);
+}
 }

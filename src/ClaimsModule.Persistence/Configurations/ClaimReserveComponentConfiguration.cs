@@ -45,5 +45,15 @@ public sealed class ClaimReserveComponentConfiguration : BaseEntityConfiguration
 
         builder.Navigation(e => e.Transactions)
             .UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.Property(e => e.ManagerOverrideFlag)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(e => e.ManagerOverrideAt)
+            .IsRequired(false);
+
+        builder.Property(e => e.ManagerOverrideByUserId)
+            .IsRequired(false);
     }
 }
