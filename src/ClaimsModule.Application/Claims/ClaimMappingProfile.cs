@@ -14,8 +14,6 @@ public sealed class ClaimMappingProfile : Profile
         CreateMap<ClaimParty, ClaimPartyDto>();
         CreateMap<ClaimRiskObject, ClaimRiskObjectDto>();
         CreateMap<LossEvent, LossEventDto>();
-
-        CreateMap<ClaimDocument, ClaimDocumentDto>()
-            .ForMember(dst => dst.DownloadUrl, opt => opt.Ignore());
+        CreateMap<Claim, ClaimDetailDto>();
     }
 }
