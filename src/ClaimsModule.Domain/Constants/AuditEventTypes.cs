@@ -7,6 +7,7 @@ public static class AuditEventTypes
     public const string PartyAdded          = "PARTY_ADDED";
     public const string PartyRemoved        = "PARTY_REMOVED";
     public const string ReserveCreated      = "RESERVE_CREATED";
+    public const string ReserveAdjusted = "RESERVE_ADJUSTED";
     public const string ReserveAutoApproved = "RESERVE_AUTO_APPROVED";
     public const string ReserveApproved     = "RESERVE_APPROVED";
     public const string ReserveRejected     = "RESERVE_REJECTED";
