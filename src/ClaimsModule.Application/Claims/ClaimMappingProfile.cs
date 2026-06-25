@@ -14,6 +14,5 @@ public sealed class ClaimMappingProfile : Profile
         CreateMap<ClaimParty, ClaimPartyDto>();
         CreateMap<ClaimRiskObject, ClaimRiskObjectDto>();
         CreateMap<LossEvent, LossEventDto>();
-        CreateMap<Claim, ClaimDetailDto>();
     }
 }
