@@ -10,14 +10,13 @@ public sealed class ClaimRepository(ClaimsDbContext context) : IClaimRepository
         => await context.Claims
             .FirstOrDefaultAsync(c => c.Id == id, ct);
 
-    public async Task<Claim?> GetByIdWithAllAsync(Guid id, CancellationToken ct = default)
+    public async Task<Claim?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default)
         => await context.Claims
             .Include(c => c.LossEvent)
             .Include(c => c.Parties)
             .Include(c => c.RiskObjects)
             .Include(c => c.Reserves)
                 .ThenInclude(r => r.Transactions)
-            .Include(c => c.Documents)
             .FirstOrDefaultAsync(c => c.Id == id, ct);
 
     public async Task<(IReadOnlyList<Claim> Items, int TotalCount)> ListAsync(

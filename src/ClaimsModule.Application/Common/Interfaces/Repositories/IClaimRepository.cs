@@ -6,7 +6,7 @@ namespace ClaimsModule.Application.Common.Interfaces;
 public interface IClaimRepository
 {
     Task<Claim?> GetByIdAsync(Guid id, CancellationToken ct = default);
-    Task<Claim?> GetByIdWithAllAsync(Guid id, CancellationToken ct = default);
+    Task<Claim?> GetByIdWithDetailsAsync(Guid id, CancellationToken ct = default);
     Task<(IReadOnlyList<Claim> Items, int TotalCount)> ListAsync(
         ClaimListFilter filter,
         int page,
