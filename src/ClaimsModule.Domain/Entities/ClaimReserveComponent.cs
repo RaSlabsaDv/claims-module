@@ -1,4 +1,5 @@
 using ClaimsModule.Domain.Common;
+using ClaimsModule.Domain.Constants;
 using ClaimsModule.Domain.Enums;
 using ClaimsModule.Domain.Exceptions;
 
@@ -97,9 +98,9 @@ public sealed class ClaimReserveComponent : BaseEntity
     public static ApprovalLevel DetermineRequiredApprovalLevel(decimal amount) =>
         amount switch
         {
-            <= 10_000m      => ApprovalLevel.AutoApproved,
-            <= 100_000m     => ApprovalLevel.Supervisor,
-            <= 10_000_000m  => ApprovalLevel.Manager,
-            _               => ApprovalLevel.Manager
+            <= ReserveThresholds.AutoApprovalLimit  => ApprovalLevel.AutoApproved,
+            <= ReserveThresholds.SupervisorLimit    => ApprovalLevel.Supervisor,
+            <= ReserveThresholds.ManagerLimit       => ApprovalLevel.Manager,
+            _                                       => ApprovalLevel.Manager
         };
 }
