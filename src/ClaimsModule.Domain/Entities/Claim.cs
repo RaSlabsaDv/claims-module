@@ -1,6 +1,7 @@
 using ClaimsModule.Domain.Common;
 using ClaimsModule.Domain.Enums;
 using ClaimsModule.Domain.Exceptions;
+using ClaimsModule.Domain.StateMachines;
 
 namespace ClaimsModule.Domain.Entities;
 
@@ -100,7 +101,7 @@ public sealed class Claim : BaseEntity
     // ---------------------------------------------------------------------------
     public void TransitionTo(ClaimStatus targetStatus, Guid userId, string? reason = null)
     {
-        if (!IsValidTransition(Status, targetStatus))
+        if (!ClaimStateMachine.IsValidTransition(Status, targetStatus))
             throw new DomainException(
                 $"Transition from {Status} to {targetStatus} is not permitted.");
 
@@ -197,25 +198,4 @@ public sealed class Claim : BaseEntity
         Notes = notes;
         SetUpdated(userId);
     }
-
-    // ---------------------------------------------------------------------------
-    // State Machine (Section 4.2)
-    // ---------------------------------------------------------------------------
-    private static bool IsValidTransition(ClaimStatus from, ClaimStatus to) =>
-        (from, to) switch
-        {
-            (ClaimStatus.Draft,              ClaimStatus.Open)               => true,
-            (ClaimStatus.Open,               ClaimStatus.UnderInvestigation) => true,
-            (ClaimStatus.Open,               ClaimStatus.PendingPayment)     => true,
-            (ClaimStatus.Open,               ClaimStatus.Closed)             => true,
-            (ClaimStatus.Open,               ClaimStatus.Withdrawn)          => true,
-            (ClaimStatus.UnderInvestigation, ClaimStatus.Open)               => true,
-            (ClaimStatus.UnderInvestigation, ClaimStatus.PendingPayment)     => true,
-            (ClaimStatus.UnderInvestigation, ClaimStatus.Closed)             => true,
-            (ClaimStatus.UnderInvestigation, ClaimStatus.Withdrawn)          => true,
-            (ClaimStatus.PendingPayment,     ClaimStatus.Closed)             => true,
-            (ClaimStatus.Closed,             ClaimStatus.Reopened)           => true,
-            (ClaimStatus.Reopened,           ClaimStatus.Open)               => true,
-            _ => false
-        };
 }
