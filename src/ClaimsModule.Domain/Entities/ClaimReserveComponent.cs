@@ -109,10 +109,29 @@ public sealed class ClaimReserveComponent : BaseEntity
         };
 
     public void SetManagerOverride(Guid managerId)
-{
-    ManagerOverrideFlag = true;
-    ManagerOverrideAt = DateTimeOffset.UtcNow;
-    ManagerOverrideByUserId = managerId;
-    SetUpdated(managerId);
-}
+    {
+        ManagerOverrideFlag = true;
+        ManagerOverrideAt = DateTimeOffset.UtcNow;
+        ManagerOverrideByUserId = managerId;
+        SetUpdated(managerId);
+    }
+
+    public ReserveHistory ApproveTransaction(Guid transactionId, Guid approvedByUserId)
+    {
+        var transaction = _transactions.FirstOrDefault(t => t.Id == transactionId)
+            ?? throw new DomainException($"Transaction {transactionId} not found on reserve.");
+    
+        transaction.Approve(approvedByUserId);
+        ApplyApprovedTransaction(transactionId, transaction.NewBalance);
+    
+        return transaction;
+    }
+
+    public void RejectTransaction(Guid transactionId, Guid rejectedByUserId, string rejectionReason)
+    {
+        var transaction = _transactions.FirstOrDefault(t => t.Id == transactionId)
+            ?? throw new DomainException($"Transaction {transactionId} not found.");
+
+        transaction.Reject(rejectedByUserId, rejectionReason);
+    }
 }
