@@ -82,5 +82,8 @@ public sealed class ReserveHistoryConfiguration : IEntityTypeConfiguration<Reser
             .IsRequired();
 
         // Append-only — без query filter (немає IsDeleted)
+
+        builder.HasIndex(e => new { e.ReserveComponentId, e.ChangeSequence })
+            .IsUnique();
     }
 }
