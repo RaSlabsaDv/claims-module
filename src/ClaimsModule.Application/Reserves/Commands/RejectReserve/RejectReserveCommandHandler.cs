@@ -18,10 +18,6 @@ public sealed class RejectReserveCommandHandler(
         var reserve = await reserveRepository.GetByIdWithTransactionsAsync(request.ReserveId, ct)
             ?? throw new NotFoundException(nameof(ClaimReserveComponent), request.ReserveId);
 
-        // Optimistic concurrency check
-        if (!reserve.RowVer.SequenceEqual(request.RowVersion))
-            throw new ConcurrencyException(nameof(ClaimReserveComponent), request.ReserveId);
-
         reserve.RejectTransaction(request.TransactionId, currentUser.UserId, request.RejectionReason);
 
         await unitOfWork.SaveChangesAsync(ct);

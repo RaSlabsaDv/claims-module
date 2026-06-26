@@ -22,10 +22,6 @@ public sealed class ApproveReserveCommandHandler(
         var reserve = await reserveRepository.GetByIdWithTransactionsAsync(request.ReserveId, ct)
             ?? throw new NotFoundException(nameof(ClaimReserveComponent), request.ReserveId);
 
-        // Optimistic concurrency check
-        if (!reserve.RowVer.SequenceEqual(request.RowVersion))
-            throw new ConcurrencyException(nameof(ClaimReserveComponent), request.ReserveId);
-
         // BR-R-03: self-approval guard
         var pendingTransaction = reserve.Transactions
             .FirstOrDefault(t => t.Id == request.TransactionId)

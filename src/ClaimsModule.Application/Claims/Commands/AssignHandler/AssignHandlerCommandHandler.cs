@@ -17,19 +17,20 @@ public sealed class AssignHandlerCommandHandler(
     {
         var claim = await claimRepository.GetByIdAsync(request.ClaimId, ct)
             ?? throw new NotFoundException(nameof(Claim), request.ClaimId);
-
+    
+        var previousHandlerId = claim.AssignedHandlerId;
+    
         claim.AssignHandler(request.HandlerId, currentUser.UserId);
-
+    
         await unitOfWork.SaveChangesAsync(ct);
-
+    
         await auditLog.LogAsync(
             claimId: claim.Id,
-            eventType: AuditEventTypes.StatusChanged,
-            description: $"Handler assigned to claim.",
-            relatedEntityId: request.HandlerId,
-            relatedEntityType: "User",
+            eventType: AuditEventTypes.HandlerAssigned,
+            description: $"Handler changed from {previousHandlerId} to {request.HandlerId}.",
+            oldValue: new { HandlerId = previousHandlerId },
             newValue: new { HandlerId = request.HandlerId });
-
+    
         return Unit.Value;
     }
 }
