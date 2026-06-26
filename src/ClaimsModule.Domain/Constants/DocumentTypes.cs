@@ -9,4 +9,10 @@ public static class DocumentTypes
     public const string Contract       = "Contract";
     public const string Correspondence = "Correspondence";
     public const string Other          = "Other";
+
+    public static readonly IReadOnlyList<string> All =
+    [
+        PoliceReport, MedicalReport, Invoice,
+        Photo, Contract, Correspondence, Other
+    ];
 }
