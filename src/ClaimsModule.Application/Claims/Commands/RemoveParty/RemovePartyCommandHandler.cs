@@ -18,9 +18,6 @@ public sealed class RemovePartyCommandHandler(
         var claim = await claimRepository.GetByIdWithDetailsAsync(request.ClaimId, ct)
             ?? throw new NotFoundException(nameof(Claim), request.ClaimId);
 
-        if (!claim.RowVer.SequenceEqual(request.RowVersion))
-            throw new ConcurrencyException(nameof(Claim), request.ClaimId);
-
         claim.RemoveParty(request.PartyId, currentUser.UserId);
 
         await unitOfWork.SaveChangesAsync(ct);

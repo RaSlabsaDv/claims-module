@@ -11,9 +11,5 @@ public sealed class ApproveReserveCommandValidator : AbstractValidator<ApproveRe
 
         RuleFor(x => x.TransactionId)
             .NotEmpty();
-
-        RuleFor(x => x.RowVersion)
-            .NotEmpty()
-            .WithMessage("RowVersion is required for concurrency check.");
     }
 }

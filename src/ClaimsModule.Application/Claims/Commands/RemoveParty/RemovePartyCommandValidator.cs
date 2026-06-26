@@ -11,9 +11,5 @@ public sealed class RemovePartyCommandValidator : AbstractValidator<RemovePartyC
 
         RuleFor(x => x.PartyId)
             .NotEmpty();
-
-        RuleFor(x => x.RowVersion)
-            .NotEmpty()
-            .WithMessage("RowVersion is required for concurrency check.");
     }
 }

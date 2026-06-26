@@ -3,7 +3,6 @@ using MediatR;
 
 public sealed record AddPartyCommand(
     Guid ClaimId,
-    byte[] RowVersion,
     PartyRole PartyRole,
     PartyType PartyType,
     string? FirstName,

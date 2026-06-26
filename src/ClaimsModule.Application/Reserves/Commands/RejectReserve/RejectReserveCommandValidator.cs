@@ -15,9 +15,5 @@ public sealed class RejectReserveCommandValidator : AbstractValidator<RejectRese
         RuleFor(x => x.RejectionReason)
             .NotEmpty()
             .MaximumLength(500);
-
-        RuleFor(x => x.RowVersion)
-            .NotEmpty()
-            .WithMessage("RowVersion is required for concurrency check.");
     }
 }
