@@ -72,4 +72,7 @@ public sealed class ClaimRepository(ClaimsDbContext context) : IClaimRepository
         => await context.Claims
             .AsNoTracking()
             .AnyAsync(c => c.Id == id, ct);
+
+    public void SetOriginalRowVersion(Claim claim, byte[] rowVersion)
+        => context.Entry(claim).Property(x => x.RowVer).OriginalValue = rowVersion;
 }

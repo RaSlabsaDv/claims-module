@@ -16,4 +16,6 @@ public interface IReserveRepository
     Task<decimal> GetAggregateTotalByClaimAsync(Guid claimId, CancellationToken ct = default);
 
     Task<int> GetNextChangeSequenceAsync(Guid reserveId, CancellationToken ct = default);
+
+    void SetOriginalRowVersion(ClaimReserveComponent reserve, byte[] rowVersion);
 }

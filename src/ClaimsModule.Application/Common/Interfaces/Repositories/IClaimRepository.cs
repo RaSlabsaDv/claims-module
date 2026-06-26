@@ -16,6 +16,8 @@ public interface IClaimRepository
     Task AddAsync(Claim claim, CancellationToken ct = default);
 
     Task<bool> ExistsAsync(Guid id, CancellationToken ct = default);
+
+    void SetOriginalRowVersion(Claim claim, byte[] rowVersion);
 }
 
 public sealed record ClaimListFilter(
@@ -26,3 +28,5 @@ public sealed record ClaimListFilter(
     string? CauseOfLossCode = null,
     Guid? PolicyId = null,
     string? Search = null);  // partial claim number або client name
+
+

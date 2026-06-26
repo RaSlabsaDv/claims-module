@@ -42,4 +42,7 @@ public sealed class ReserveRepository(ClaimsDbContext context) : IReserveReposit
             .AsNoTracking()
             .Where(t => t.ReserveComponentId == reserveId)
             .MaxAsync(t => (int?)t.ChangeSequence, ct) ?? 0) + 1;
+
+    public void SetOriginalRowVersion(ClaimReserveComponent reserve, byte[] rowVersion)
+        => context.Entry(reserve).Property(x => x.RowVer).OriginalValue = rowVersion;
 }
