@@ -35,7 +35,6 @@ public sealed class ClaimConfiguration : BaseEntityConfiguration<Claim>
             .HasMaxLength(255)
             .IsRequired(false);
 
-        // Enum → string конвенція застосовується глобально в ConfigureConventions
         builder.Property(e => e.Status)
             .IsRequired();
 
@@ -63,12 +62,17 @@ public sealed class ClaimConfiguration : BaseEntityConfiguration<Claim>
         builder.Property(e => e.RowVer)
             .IsRowVersion();
 
-        // Relationships
+        // LossEvent — 1:1, через backing field
         builder.HasOne(e => e.LossEvent)
             .WithOne(e => e.Claim)
             .HasForeignKey<LossEvent>(e => e.ClaimId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.Navigation(e => e.LossEvent)
+            .UsePropertyAccessMode(PropertyAccessMode.Field)
+            .HasField("_lossEvent");
+
+        // Relationships
         builder.HasMany(e => e.Parties)
             .WithOne(e => e.Claim)
             .HasForeignKey(e => e.ClaimId)
@@ -88,13 +92,6 @@ public sealed class ClaimConfiguration : BaseEntityConfiguration<Claim>
             .WithOne(e => e.Claim)
             .HasForeignKey(e => e.ClaimId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        // Policy FK (nullable — simulated policy table)
-        builder.HasOne(e => e.Policy)
-            .WithMany()
-            .HasForeignKey(e => e.PolicyId)
-            .OnDelete(DeleteBehavior.SetNull)
-            .IsRequired(false);
 
         // Private collection backing fields
         builder.Navigation(e => e.Parties)
