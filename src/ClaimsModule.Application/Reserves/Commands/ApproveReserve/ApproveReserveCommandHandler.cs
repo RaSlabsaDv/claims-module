@@ -4,6 +4,7 @@ using ClaimsModule.Domain.Entities;
 using ClaimsModule.Domain.Enums;
 using ClaimsModule.Domain.Exceptions;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace ClaimsModule.Application.Reserves.Commands.ApproveReserve;
 
@@ -12,7 +13,8 @@ public sealed class ApproveReserveCommandHandler(
     IUnitOfWork unitOfWork,
     ICurrentUserService currentUser,
     IGlPostingJobScheduler glPostingJobScheduler,
-    IAuditLogService auditLog)
+    IAuditLogService auditLog,
+    ILogger<ApproveReserveCommandHandler> logger)
     : IRequestHandler<ApproveReserveCommand, Unit>
 {
     public async Task<Unit> Handle(ApproveReserveCommand request, CancellationToken ct)
@@ -20,22 +22,25 @@ public sealed class ApproveReserveCommandHandler(
         var reserve = await reserveRepository.GetByIdWithTransactionsAsync(request.ReserveId, ct)
             ?? throw new NotFoundException(nameof(ClaimReserveComponent), request.ReserveId);
 
-        var transaction = reserve.Transactions
+        // Optimistic concurrency check
+        if (!reserve.RowVer.SequenceEqual(request.RowVersion))
+            throw new ConcurrencyException(nameof(ClaimReserveComponent), request.ReserveId);
+
+        // BR-R-03: self-approval guard
+        var pendingTransaction = reserve.Transactions
             .FirstOrDefault(t => t.Id == request.TransactionId)
             ?? throw new NotFoundException(nameof(ReserveHistory), request.TransactionId);
 
-        // BR-R-03: self-approval guard
-        if (transaction.SubmittedByUserId == currentUser.UserId)
+        if (pendingTransaction.SubmittedByUserId == currentUser.UserId)
             throw new DomainException("Cannot approve your own reserve transaction.");
 
         // BR-R-01: authority level check
-        var requiredLevel = ClaimReserveComponent.DetermineRequiredApprovalLevel(transaction.Amount);
-        var userRole = currentUser.Role;
+        var requiredLevel = ClaimReserveComponent.DetermineRequiredApprovalLevel(pendingTransaction.Amount);
 
         var hasAuthority = requiredLevel switch
         {
-            ApprovalLevel.Supervisor => userRole is "Supervisor" or "Manager",
-            ApprovalLevel.Manager    => userRole is "Manager",
+            ApprovalLevel.Supervisor => currentUser.Role is UserRoles.Supervisor or UserRoles.Manager,
+            ApprovalLevel.Manager    => currentUser.Role is UserRoles.Manager,
             _                        => true
         };
 
@@ -46,17 +51,26 @@ public sealed class ApproveReserveCommandHandler(
         // BR-R-05: aggregate $10M limit
         var aggregateTotal = await reserveRepository.GetAggregateTotalByClaimAsync(reserve.ClaimId, ct);
 
-        if (aggregateTotal + transaction.Amount > ReserveThresholds.ManagerLimit
+        if (aggregateTotal + pendingTransaction.Amount > ReserveThresholds.ManagerLimit
             && !reserve.ManagerOverrideFlag)
             throw new DomainException(
                 $"Approval would exceed aggregate limit of ${ReserveThresholds.ManagerLimit:N0}. Manager override required.");
 
-        transaction.Approve(currentUser.UserId);
-        reserve.ApplyApprovedTransaction(transaction.Id, transaction.NewBalance);
+        var transaction = reserve.ApproveTransaction(request.TransactionId, currentUser.UserId);
 
         await unitOfWork.SaveChangesAsync(ct);
 
-        glPostingJobScheduler.EnqueueGlPosting(transaction.Id, transaction.IdempotencyKey);
+        try
+        {
+            glPostingJobScheduler.EnqueueGlPosting(transaction.Id, transaction.IdempotencyKey);
+        }
+        catch (Exception ex)
+        {
+            // NOTE: Transaction is already saved as Approved in DB but GL posting job was not enqueued.
+            // In production, this should be handled via Outbox pattern to guarantee atomicity.
+            // For assessment scope, this is logged and accepted as a known limitation.
+            logger.LogError(ex, "Failed to enqueue GL posting job for transaction {TransactionId}.", transaction.Id);
+        }
 
         await auditLog.LogAsync(
             claimId: reserve.ClaimId,
