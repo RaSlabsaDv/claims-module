@@ -47,18 +47,17 @@ public sealed class Claim : BaseEntity
     // ---------------------------------------------------------------------------
     // Navigation Properties
     // ---------------------------------------------------------------------------
+    private LossEvent? _lossEvent;
     private readonly List<ClaimParty> _parties = [];
     private readonly List<ClaimRiskObject> _riskObjects = [];
     private readonly List<ClaimReserveComponent> _reserves = [];
     private readonly List<ClaimDocument> _documents = [];
 
+    public LossEvent? LossEvent => _lossEvent;
     public IReadOnlyList<ClaimParty> Parties => _parties.AsReadOnly();
     public IReadOnlyList<ClaimRiskObject> RiskObjects => _riskObjects.AsReadOnly();
     public IReadOnlyList<ClaimReserveComponent> Reserves => _reserves.AsReadOnly();
     public IReadOnlyList<ClaimDocument> Documents => _documents.AsReadOnly();
-
-    public LossEvent? LossEvent { get; private set; }
-    public Policy? Policy { get; private set; }
 
     // EF Core
     private Claim() { }
@@ -71,11 +70,17 @@ public sealed class Claim : BaseEntity
         string claimNumber,
         ClaimSeverity severity,
         Guid createdByUserId,
+        DateTimeOffset lossDate,
+        string lossDescription,
+        string causeOfLossCode,
         Guid? policyId = null,
         string? policyNumber = null,
         string? clientName = null,
         Guid? assignedHandlerId = null,
-        string? notes = null)
+        string? notes = null,
+        string? lossLocation = null,
+        decimal? estimatedLossAmount = null,
+        string? policeReportNumber = null)
     {
         var claim = new Claim
         {
@@ -92,6 +97,18 @@ public sealed class Claim : BaseEntity
         };
 
         claim.SetCreated(createdByUserId);
+
+        // LossEvent створюється агрегатом
+        claim._lossEvent = LossEvent.Create(
+            claimId: claim.Id,
+            lossDate: lossDate,
+            lossDescription: lossDescription,
+            causeOfLossCode: causeOfLossCode,
+            reportDate: DateTimeOffset.UtcNow,
+            createdByUserId: createdByUserId,
+            lossLocation: lossLocation,
+            estimatedLossAmount: estimatedLossAmount,
+            policeReportNumber: policeReportNumber);
 
         return claim;
     }
@@ -142,14 +159,12 @@ public sealed class Claim : BaseEntity
     {
         var reasons = new List<string>();
 
-        // CC-01: немає резервів зі статусом PendingApproval
         var hasPendingReserves = _reserves
             .Any(r => r.Transactions.Any(t => t.ApprovalStatus == ReserveApprovalStatus.PendingApproval));
 
         if (hasPendingReserves)
             reasons.Add("CC-01: There are reserve components pending approval.");
 
-        // CC-03: хоча б один активний Claimant
         var hasClaimant = _parties.Any(p => p.IsActive && p.PartyRole == PartyRole.Claimant);
         if (!hasClaimant)
             reasons.Add("CC-03: At least one active Claimant party is required.");
@@ -157,7 +172,6 @@ public sealed class Claim : BaseEntity
         return reasons.AsReadOnly();
     }
 
-    // CC-04 — Warning (не блокує, потребує підтвердження від handler)
     public bool HasOpenReservesWarning()
         => _reserves.Any(r => r.CurrentAmount > 0);
 
@@ -185,6 +199,20 @@ public sealed class Claim : BaseEntity
     }
 
     // ---------------------------------------------------------------------------
+    // Risk Object Management
+    // ---------------------------------------------------------------------------
+    public void AddRiskObject(ClaimRiskObject riskObject)
+    {
+        if (Status is ClaimStatus.Closed or ClaimStatus.Withdrawn)
+            throw new DomainException("Cannot add risk object to a closed or withdrawn claim.");
+
+        if (riskObject.IsPrimary && _riskObjects.Any(r => r.IsPrimary && !r.IsDeleted))
+            throw new DomainException("Claim already has a primary risk object.");
+
+        _riskObjects.Add(riskObject);
+    }
+
+    // ---------------------------------------------------------------------------
     // Assignment & Notes
     // ---------------------------------------------------------------------------
     public void AssignHandler(Guid handlerId, Guid userId)
@@ -197,16 +225,5 @@ public sealed class Claim : BaseEntity
     {
         Notes = notes;
         SetUpdated(userId);
-    }
-
-    public void AddRiskObject(ClaimRiskObject riskObject)
-    {
-        if (Status is ClaimStatus.Closed or ClaimStatus.Withdrawn)
-            throw new DomainException("Cannot add risk object to a closed or withdrawn claim.");
-    
-        if (riskObject.IsPrimary && _riskObjects.Any(r => r.IsPrimary && !r.IsDeleted))
-            throw new DomainException("Claim already has a primary risk object.");
-    
-        _riskObjects.Add(riskObject);
     }
 }
