@@ -78,6 +78,14 @@ public sealed class ExceptionHandlingMiddleware(
                 Detail = "The resource was modified by another user. Please refresh and try again.",
                 Extensions = { ["correlationId"] = correlationId }
             },
+
+            UnauthorizedException => new ProblemDetails
+            {
+                Status = StatusCodes.Status401Unauthorized,
+                Title = "Unauthorized",
+                Detail = "User is not authenticated.",
+                Extensions = { ["correlationId"] = correlationId }
+            },
     
             _ => new ProblemDetails
             {
