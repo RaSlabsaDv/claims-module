@@ -1,3 +1,4 @@
+using ClaimsModule.Application.Common.Exceptions;
 using ClaimsModule.Application.Common.Interfaces;
 using ClaimsModule.Domain.Constants;
 using ClaimsModule.Domain.Entities;
@@ -18,6 +19,8 @@ public sealed class OpenReserveCommandHandler
 {
     public async Task<Guid> Handle(OpenReserveCommand request, CancellationToken ct)
     {
+        var userId = currentUser.UserId ?? throw new UnauthorizedException();
+
         var exists = await claimRepository.ExistsAsync(request.ClaimId, ct);
 
         if (!exists)
@@ -26,7 +29,7 @@ public sealed class OpenReserveCommandHandler
          var reserve = ClaimReserveComponent.Create(
             claimId: request.ClaimId,
             componentType: request.ComponentType,
-            createdByUserId: currentUser.UserId,
+            createdByUserId: userId,
             notes: request.Notes);
 
         var changeSequence = 1;
@@ -34,7 +37,7 @@ public sealed class OpenReserveCommandHandler
             amount: request.Amount,
             transactionType: ReserveTransactionType.Add,
             changeReason: request.ChangeReason,
-            submittedByUserId: currentUser.UserId,
+            submittedByUserId: userId,
             changeSequence: changeSequence);
 
         await reserveRepository.AddAsync(reserve, ct);

@@ -1,3 +1,4 @@
+using ClaimsModule.Application.Common.Exceptions;
 using ClaimsModule.Application.Common.Interfaces;
 using ClaimsModule.Domain.Constants;
 using ClaimsModule.Domain.Entities;
@@ -18,6 +19,9 @@ public sealed class CreateClaimCommandHandler(
 {
     public async Task<CreateClaimResult> Handle(CreateClaimCommand request, CancellationToken ct)
     {
+        var userId = currentUser.UserId ?? throw new UnauthorizedException();
+        var organisationId = currentUser.OrganisationId ?? throw new UnauthorizedException();
+
         // Валідація CauseOfLossCode
         var causeOfLossCode = await causeOfLossCodeRepository.GetByCodeAsync(request.CauseOfLossCode, ct)
             ?? throw new NotFoundException(nameof(CauseOfLossCode), request.CauseOfLossCode);
@@ -43,7 +47,7 @@ public sealed class CreateClaimCommandHandler(
             organisationId: request.OrganisationId,
             claimNumber: claimNumber,
             severity: request.Severity,
-            createdByUserId: currentUser.UserId,
+            createdByUserId: userId,
             lossDate: request.LossDate,
             lossDescription: request.LossDescription,
             causeOfLossCode: request.CauseOfLossCode,

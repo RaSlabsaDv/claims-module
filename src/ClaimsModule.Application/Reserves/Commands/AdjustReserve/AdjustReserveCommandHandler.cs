@@ -1,3 +1,4 @@
+using ClaimsModule.Application.Common.Exceptions;
 using ClaimsModule.Application.Common.Interfaces;
 using ClaimsModule.Domain.Constants;
 using ClaimsModule.Domain.Entities;
@@ -17,6 +18,8 @@ public sealed class AdjustReserveCommandHandler(
 {
     public async Task<Unit> Handle(AdjustReserveCommand request, CancellationToken ct)
     {
+        var userId = currentUser.UserId ?? throw new UnauthorizedException();
+
         var reserve = await reserveRepository.GetByIdWithTransactionsAsync(request.ReserveId, ct)
             ?? throw new NotFoundException(nameof(ClaimReserveComponent), request.ReserveId);
 
@@ -26,7 +29,7 @@ public sealed class AdjustReserveCommandHandler(
             amount: request.Amount,
             transactionType: ReserveTransactionType.Adjust,
             changeReason: request.ChangeReason,
-            submittedByUserId: currentUser.UserId,
+            submittedByUserId: userId,
             changeSequence: changeSequence);
 
         var approvalLevel = ClaimReserveComponent.DetermineRequiredApprovalLevel(request.Amount);

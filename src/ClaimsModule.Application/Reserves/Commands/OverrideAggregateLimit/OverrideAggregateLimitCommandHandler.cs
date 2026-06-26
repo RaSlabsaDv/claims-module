@@ -1,3 +1,4 @@
+using ClaimsModule.Application.Common.Exceptions;
 using ClaimsModule.Application.Common.Interfaces;
 using ClaimsModule.Domain.Constants;
 using ClaimsModule.Domain.Entities;
@@ -15,10 +16,12 @@ public sealed class OverrideAggregateLimitCommandHandler(
 {
     public async Task<Unit> Handle(OverrideAggregateLimitCommand request, CancellationToken ct)
     {
+        var userId = currentUser.UserId ?? throw new UnauthorizedException();
+
         var reserve = await reserveRepository.GetByIdAsync(request.ReserveId, ct)
             ?? throw new NotFoundException(nameof(ClaimReserveComponent), request.ReserveId);
 
-        reserve.SetManagerOverride(currentUser.UserId);
+        reserve.SetManagerOverride(userId);
 
         await unitOfWork.SaveChangesAsync(ct);
 

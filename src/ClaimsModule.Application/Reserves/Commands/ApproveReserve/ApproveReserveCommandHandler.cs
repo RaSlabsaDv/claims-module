@@ -1,3 +1,4 @@
+using ClaimsModule.Application.Common.Exceptions;
 using ClaimsModule.Application.Common.Interfaces;
 using ClaimsModule.Domain.Constants;
 using ClaimsModule.Domain.Entities;
@@ -19,6 +20,8 @@ public sealed class ApproveReserveCommandHandler(
 {
     public async Task<Unit> Handle(ApproveReserveCommand request, CancellationToken ct)
     {
+        var userId = currentUser.UserId ?? throw new UnauthorizedException();
+
         var reserve = await reserveRepository.GetByIdWithTransactionsAsync(request.ReserveId, ct)
             ?? throw new NotFoundException(nameof(ClaimReserveComponent), request.ReserveId);
 
@@ -54,7 +57,7 @@ public sealed class ApproveReserveCommandHandler(
             throw new DomainException(
                 $"Approval would exceed aggregate limit of ${ReserveThresholds.ManagerLimit:N0}. Manager override required.");
 
-        var transaction = reserve.ApproveTransaction(request.TransactionId, currentUser.UserId);
+        var transaction = reserve.ApproveTransaction(request.TransactionId, userId);
 
         await unitOfWork.SaveChangesAsync(ct);
 

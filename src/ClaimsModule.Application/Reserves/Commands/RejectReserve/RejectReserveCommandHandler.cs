@@ -1,3 +1,4 @@
+using ClaimsModule.Application.Common.Exceptions;
 using ClaimsModule.Application.Common.Interfaces;
 using ClaimsModule.Domain.Constants;
 using ClaimsModule.Domain.Entities;
@@ -15,12 +16,14 @@ public sealed class RejectReserveCommandHandler(
 {
     public async Task<Unit> Handle(RejectReserveCommand request, CancellationToken ct)
     {
+        var userId = currentUser.UserId ?? throw new UnauthorizedException();
+
         var reserve = await reserveRepository.GetByIdWithTransactionsAsync(request.ReserveId, ct)
             ?? throw new NotFoundException(nameof(ClaimReserveComponent), request.ReserveId);
 
         reserveRepository.SetOriginalRowVersion(reserve, request.RowVersion);
 
-        reserve.RejectTransaction(request.TransactionId, currentUser.UserId, request.RejectionReason);
+        reserve.RejectTransaction(request.TransactionId, userId, request.RejectionReason);
 
         await unitOfWork.SaveChangesAsync(ct);
 

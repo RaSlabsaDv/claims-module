@@ -23,7 +23,7 @@ public sealed class AuditLogService(
             claimId: claimId,
             eventType: eventType,
             description: description,
-            createdByUserId: currentUser.UserId == Guid.Empty ? null : currentUser.UserId,
+            createdByUserId: currentUser.UserId,
             oldValue: oldValue is null ? null : JsonSerializer.Serialize(oldValue),
             newValue: newValue is null ? null : JsonSerializer.Serialize(newValue),
             relatedEntityId: relatedEntityId,

@@ -1,3 +1,4 @@
+using ClaimsModule.Application.Common.Exceptions;
 using ClaimsModule.Application.Common.Interfaces;
 using ClaimsModule.Domain.Constants;
 using ClaimsModule.Domain.Entities;
@@ -15,6 +16,8 @@ public sealed class AddRiskObjectCommandHandler(
 {
     public async Task<Guid> Handle(AddRiskObjectCommand request, CancellationToken ct)
     {
+        var userId = currentUser.UserId ?? throw new UnauthorizedException();
+
         var claim = await claimRepository.GetByIdAsync(request.ClaimId, ct)
             ?? throw new NotFoundException(nameof(Claim), request.ClaimId);
 
@@ -24,7 +27,7 @@ public sealed class AddRiskObjectCommandHandler(
             claimId: request.ClaimId,
             assetType: request.AssetType,
             assetDescription: request.AssetDescription,
-            createdByUserId: currentUser.UserId,
+            createdByUserId: userId,
             damageDescription: request.DamageDescription,
             isPrimary: request.IsPrimary,
             assetReference: request.AssetReference);

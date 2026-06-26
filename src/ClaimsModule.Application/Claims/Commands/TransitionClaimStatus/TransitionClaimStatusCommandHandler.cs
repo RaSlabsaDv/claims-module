@@ -1,3 +1,4 @@
+using ClaimsModule.Application.Common.Exceptions;
 using ClaimsModule.Application.Common.Interfaces;
 using ClaimsModule.Domain.Constants;
 using ClaimsModule.Domain.Entities;
@@ -15,6 +16,8 @@ public sealed class TransitionClaimStatusCommandHandler(
 {
     public async Task<Unit> Handle(TransitionClaimStatusCommand request, CancellationToken ct)
     {
+        var userId = currentUser.UserId ?? throw new UnauthorizedException();
+
         var claim = await claimRepository.GetByIdWithDetailsAsync(request.ClaimId, ct)
             ?? throw new NotFoundException(nameof(Claim), request.ClaimId);
 
@@ -22,7 +25,7 @@ public sealed class TransitionClaimStatusCommandHandler(
 
         var previousStatus = claim.Status;
 
-        claim.TransitionTo(request.TargetStatus, currentUser.UserId, request.Reason);
+        claim.TransitionTo(request.TargetStatus, userId, request.Reason);
 
         await unitOfWork.SaveChangesAsync(ct);
 

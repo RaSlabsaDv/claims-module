@@ -1,3 +1,4 @@
+using ClaimsModule.Application.Common.Exceptions;
 using ClaimsModule.Application.Common.Interfaces;
 using ClaimsModule.Domain.Constants;
 using ClaimsModule.Domain.Entities;
@@ -15,12 +16,14 @@ public sealed class RemovePartyCommandHandler(
 {
     public async Task<Unit> Handle(RemovePartyCommand request, CancellationToken ct)
     {
+        var userId = currentUser.UserId ?? throw new UnauthorizedException();
+
         var claim = await claimRepository.GetByIdWithDetailsAsync(request.ClaimId, ct)
             ?? throw new NotFoundException(nameof(Claim), request.ClaimId);
 
         claimRepository.SetOriginalRowVersion(claim, request.RowVersion);
 
-        claim.RemoveParty(request.PartyId, currentUser.UserId);
+        claim.RemoveParty(request.PartyId, userId);
 
         await unitOfWork.SaveChangesAsync(ct);
 
