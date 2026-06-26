@@ -6,11 +6,6 @@ namespace ClaimsModule.Persistence.Repositories;
 
 public sealed class ClaimPartyRepository(ClaimsDbContext context) : IClaimPartyRepository
 {
-    public async Task AddAsync(ClaimParty party, CancellationToken ct = default)
-    {
-        await context.ClaimParties.AddAsync(party, ct);
-    }
-
     public async Task<ClaimParty?> GetByIdAsync(Guid id, CancellationToken ct = default)
     {
         return await context.ClaimParties.FirstOrDefaultAsync(cp => cp.Id == id, ct);

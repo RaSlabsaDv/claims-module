@@ -6,12 +6,6 @@ namespace ClaimsModule.Persistence.Repositories;
 
 public sealed class CauseOfLossCodeRepository(ClaimsDbContext context) : ICauseOfLossCodeRepository
 {
-    public async Task<bool> ExistsAsync(string code, CancellationToken ct = default)
-    {
-        return await context.CauseOfLossCodes
-            .AnyAsync(x => x.Code == code, ct);
-    }
-
     public async Task<CauseOfLossCode?> GetByCodeAsync(string code, CancellationToken ct = default)
     {
         return await context.CauseOfLossCodes

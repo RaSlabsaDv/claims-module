@@ -15,7 +15,7 @@ public sealed class GetClaimDetailQueryHandler
 {
     public async Task<ClaimDetailDto> Handle(GetClaimDetailQuery request, CancellationToken ct)
     {
-        var claim = await claimRepository.GetByIdWithAllAsync(request.id, ct);
+        var claim = await claimRepository.GetByIdWithDetailsAsync(request.id, ct);
 
         if (claim is null)
             throw new NotFoundException(nameof(Claim), request.id);

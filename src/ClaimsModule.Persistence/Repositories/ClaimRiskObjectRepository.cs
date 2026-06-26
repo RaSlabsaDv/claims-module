@@ -15,7 +15,4 @@ public sealed class ClaimRiskObjectRepository(ClaimsDbContext context) : IClaimR
             .AsNoTracking()
             .Where(r => r.ClaimId == claimId)
             .ToListAsync(ct);
-
-    public async Task AddAsync(ClaimRiskObject riskObject, CancellationToken ct = default)
-        => await context.ClaimRiskObjects.AddAsync(riskObject, ct);
 }
