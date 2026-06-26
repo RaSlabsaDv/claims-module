@@ -22,4 +22,5 @@ public static class AuditEventTypes
     public const string ManagerOverrideSet = "MANAGER_OVERRIDE_SET";
     public const string HandlerAssigned = "HANDLER_ASSIGNED";
     public const string NotesUpdated = "NOTES_UPDATED";
+    public const string RiskObjectAdded = "RISK_OBJECT_ADDED";
 }

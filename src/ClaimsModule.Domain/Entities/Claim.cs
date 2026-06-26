@@ -198,4 +198,15 @@ public sealed class Claim : BaseEntity
         Notes = notes;
         SetUpdated(userId);
     }
+
+    public void AddRiskObject(ClaimRiskObject riskObject)
+    {
+        if (Status is ClaimStatus.Closed or ClaimStatus.Withdrawn)
+            throw new DomainException("Cannot add risk object to a closed or withdrawn claim.");
+    
+        if (riskObject.IsPrimary && _riskObjects.Any(r => r.IsPrimary && !r.IsDeleted))
+            throw new DomainException("Claim already has a primary risk object.");
+    
+        _riskObjects.Add(riskObject);
+    }
 }
