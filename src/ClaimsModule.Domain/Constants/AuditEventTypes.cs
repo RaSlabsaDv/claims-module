@@ -20,4 +20,6 @@ public static class AuditEventTypes
     public const string SlaBreachDetected  = "SLA_BREACH_DETECTED";
     public const string ValidationIssueAdded = "VALIDATION_ISSUE_ADDED";
     public const string ManagerOverrideSet = "MANAGER_OVERRIDE_SET";
+    public const string HandlerAssigned = "HANDLER_ASSIGNED";
+    public const string NotesUpdated = "NOTES_UPDATED";
 }
