@@ -226,4 +226,15 @@ public sealed class Claim : BaseEntity
         Notes = notes;
         SetUpdated(userId);
     }
+
+    public void AddDocument(ClaimDocument document)
+    {
+        if (Status is ClaimStatus.Closed or ClaimStatus.Withdrawn)
+            throw new DomainException("Cannot add document to a closed or withdrawn claim.");
+    
+        if (_documents.Any(d => !d.IsDeleted && d.DocumentName == document.DocumentName))
+            throw new DomainException($"Document '{document.DocumentName}' already exists on this claim.");
+    
+        _documents.Add(document);
+    }
 }
