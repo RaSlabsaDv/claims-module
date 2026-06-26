@@ -18,6 +18,8 @@ public sealed class RejectReserveCommandHandler(
         var reserve = await reserveRepository.GetByIdWithTransactionsAsync(request.ReserveId, ct)
             ?? throw new NotFoundException(nameof(ClaimReserveComponent), request.ReserveId);
 
+        reserveRepository.SetOriginalRowVersion(reserve, request.RowVersion);
+
         reserve.RejectTransaction(request.TransactionId, currentUser.UserId, request.RejectionReason);
 
         await unitOfWork.SaveChangesAsync(ct);

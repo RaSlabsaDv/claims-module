@@ -19,5 +19,9 @@ public sealed class AddRiskObjectCommandValidator : AbstractValidator<AddRiskObj
         RuleFor(x => x.DamageDescription)
             .MaximumLength(2000)
             .When(x => !string.IsNullOrWhiteSpace(x.DamageDescription));
+
+        RuleFor(x => x.RowVersion)
+            .NotEmpty()
+            .WithMessage("RowVersion is required for concurrency check.");
     }
 }

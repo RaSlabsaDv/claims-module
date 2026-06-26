@@ -10,4 +10,5 @@ public sealed record AddPartyCommand(
     string? CompanyName,
     string? Email,
     string? Phone,
-    string? Notes) : IRequest<Guid>;
+    string? Notes,
+    byte[] RowVersion) : IRequest<Guid>;

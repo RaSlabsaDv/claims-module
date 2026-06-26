@@ -17,7 +17,9 @@ public sealed class AddPartyCommandHandler(
     {
         var claim = await claimRepository.GetByIdAsync(request.ClaimId, ct)
             ?? throw new NotFoundException(nameof(Claim), request.ClaimId);
-    
+
+        claimRepository.SetOriginalRowVersion(claim, request.RowVersion);
+
         var party = ClaimParty.Create(
             claimId: request.ClaimId,
             partyRole: request.PartyRole,
@@ -29,11 +31,11 @@ public sealed class AddPartyCommandHandler(
             email: request.Email,
             phone: request.Phone,
             notes: request.Notes);
-    
+
         claim.AddParty(party);
-    
+
         await unitOfWork.SaveChangesAsync(ct);
-    
+
         await auditLog.LogAsync(
             claimId: claim.Id,
             eventType: AuditEventTypes.PartyAdded,
@@ -50,7 +52,7 @@ public sealed class AddPartyCommandHandler(
                 request.Email,
                 request.Phone
             });
-    
+
         return party.Id;
     }
 }

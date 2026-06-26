@@ -18,6 +18,8 @@ public sealed class AddRiskObjectCommandHandler(
         var claim = await claimRepository.GetByIdAsync(request.ClaimId, ct)
             ?? throw new NotFoundException(nameof(Claim), request.ClaimId);
 
+        claimRepository.SetOriginalRowVersion(claim, request.RowVersion);
+
         var riskObject = ClaimRiskObject.Create(
             claimId: request.ClaimId,
             assetType: request.AssetType,

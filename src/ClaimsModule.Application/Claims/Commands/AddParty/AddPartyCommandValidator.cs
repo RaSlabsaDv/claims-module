@@ -31,5 +31,9 @@ public sealed class AddPartyCommandValidator : AbstractValidator<AddPartyCommand
         RuleFor(x => x.Email)
             .EmailAddress()
             .When(x => !string.IsNullOrWhiteSpace(x.Email));
+
+        RuleFor(x => x.RowVersion)
+            .NotEmpty()
+            .WithMessage("RowVersion is required for concurrency check.");
     }
 }

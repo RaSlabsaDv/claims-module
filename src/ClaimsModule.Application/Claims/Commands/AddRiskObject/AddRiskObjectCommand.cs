@@ -9,4 +9,5 @@ public sealed record AddRiskObjectCommand(
     string AssetDescription,
     string? DamageDescription,
     bool IsPrimary,
-    string? AssetReference) : IRequest<Guid>;
+    string? AssetReference,
+    byte[] RowVersion) : IRequest<Guid>;
