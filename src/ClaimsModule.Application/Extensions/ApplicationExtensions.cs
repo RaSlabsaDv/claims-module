@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ClaimsModule.Application;
 
-public static class DependencyInjection
+public static class ApplicationExtensions
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {

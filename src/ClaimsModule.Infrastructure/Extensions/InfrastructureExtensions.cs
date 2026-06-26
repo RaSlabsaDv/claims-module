@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ClaimsModule.Infrastructure;
 
-public static class DependencyInjection
+public static class InfrastructureExtensions
 {
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,

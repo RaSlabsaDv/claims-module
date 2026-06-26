@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace ClaimsModule.Persistence;
 
-public static class DependencyInjection
+public static class PersistenceExtensions
 {
     public static IServiceCollection AddPersistence(
         this IServiceCollection services,
