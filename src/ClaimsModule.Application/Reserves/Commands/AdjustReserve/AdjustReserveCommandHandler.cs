@@ -23,6 +23,8 @@ public sealed class AdjustReserveCommandHandler(
         var reserve = await reserveRepository.GetByIdWithTransactionsAsync(request.ReserveId, ct)
             ?? throw new NotFoundException(nameof(ClaimReserveComponent), request.ReserveId);
 
+        reserveRepository.SetOriginalRowVersion(reserve, request.RowVersion);
+
         var changeSequence = await reserveRepository.GetNextChangeSequenceAsync(request.ReserveId, ct);
 
         var transaction = reserve.AddTransaction(
