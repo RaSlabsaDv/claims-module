@@ -21,10 +21,10 @@ public sealed class OpenReserveCommandHandler
     {
         var userId = currentUser.UserId ?? throw new UnauthorizedException();
 
-        var exists = await claimRepository.ExistsAsync(request.ClaimId, ct);
+        var claim = await claimRepository.GetByIdAsync(request.ClaimId, ct)
+            ?? throw new NotFoundException(nameof(Claim), request.ClaimId);
 
-        if (!exists)
-            throw new NotFoundException(nameof(Claim), request.ClaimId);
+        claimRepository.SetOriginalRowVersion(claim, request.RowVersion);
 
          var reserve = ClaimReserveComponent.Create(
             claimId: request.ClaimId,
