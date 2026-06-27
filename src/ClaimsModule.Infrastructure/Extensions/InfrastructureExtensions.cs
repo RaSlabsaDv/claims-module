@@ -60,7 +60,6 @@ public static class InfrastructureExtensions
         services.AddScoped<IGlPostingJobScheduler, GlPostingJobScheduler>();
 
         // Jobs
-        services.AddScoped<GlPostingJob>();
         services.AddScoped<SlaMonitoringJob>();
 
         return services;
