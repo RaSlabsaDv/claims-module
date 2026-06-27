@@ -1,6 +1,7 @@
-using ClaimsModule.Application.Claims.Queries.ListClaims;
 using ClaimsModule.Application.Common.Interfaces;
 using MediatR;
+
+namespace ClaimsModule.Application.Claims.Queries.ListClaims;
 
 public sealed record ListClaimsQuery(
     ClaimListFilter Filter,

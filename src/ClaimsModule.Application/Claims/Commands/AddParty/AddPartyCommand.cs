@@ -1,6 +1,8 @@
 using ClaimsModule.Domain.Enums;
 using MediatR;
 
+namespace ClaimsModule.Application.Claims.Commands.AddParty;
+
 public sealed record AddPartyCommand(
     Guid ClaimId,
     PartyRole PartyRole,

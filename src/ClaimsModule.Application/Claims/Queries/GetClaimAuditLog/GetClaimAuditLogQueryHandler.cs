@@ -1,6 +1,7 @@
-using ClaimsModule.Application.Claims.Queries.GetClaimAuditLog;
 using ClaimsModule.Application.Common.Interfaces;
 using MediatR;
+
+namespace ClaimsModule.Application.Claims.Queries.GetClaimAuditLog;
 
 public sealed class GetClaimAuditLogQueryHandler
 (

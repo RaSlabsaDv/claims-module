@@ -2,6 +2,8 @@ using ClaimsModule.Application.Claims.Dtos;
 using ClaimsModule.Application.Common.Interfaces;
 using MediatR;
 
+namespace ClaimsModule.Application.Claims.Queries.GetClaimDocuments;
+
 public sealed class GetClaimDocumentsQueryHandler
 (
     IClaimDocumentRepository claimDocumentRepository,
