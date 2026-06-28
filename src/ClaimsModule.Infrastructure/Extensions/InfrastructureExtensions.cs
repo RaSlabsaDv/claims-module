@@ -7,6 +7,7 @@ using Hangfire;
 using Hangfire.SqlServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace ClaimsModule.Infrastructure;
 
@@ -14,7 +15,8 @@ public static class InfrastructureExtensions
 {
     public static IServiceCollection AddInfrastructure(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IHostEnvironment environment)
     {
         // Storage
         var storageProvider = configuration["Storage:Provider"];
@@ -57,7 +59,10 @@ public static class InfrastructureExtensions
         services.AddHangfireServer();
 
         // Job Schedulers
-        services.AddScoped<IGlPostingJobScheduler, GlPostingJobScheduler>();
+        if (environment.IsDevelopment())
+            services.AddScoped<IGlPostingJobScheduler, MockGlPostingJobScheduler>();
+        else
+            services.AddScoped<IGlPostingJobScheduler, GlPostingJobScheduler>();
 
         // Jobs
         services.AddScoped<SlaMonitoringJob>();

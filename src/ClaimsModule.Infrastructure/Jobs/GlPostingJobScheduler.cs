@@ -9,6 +9,6 @@ public sealed class GlPostingJobScheduler : IGlPostingJobScheduler
     public void EnqueueGlPosting(Guid reserveHistoryId, string idempotencyKey)
     {
         BackgroundJob.Enqueue<GlPostingJob>(
-            job => job.ExecuteAsync(reserveHistoryId, idempotencyKey));
+            job => job.ExecuteAsync(reserveHistoryId, idempotencyKey, null!));
     }
 }
