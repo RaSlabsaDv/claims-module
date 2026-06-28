@@ -1,5 +1,6 @@
 using AutoMapper;
 using ClaimsModule.Application.Claims.Dtos;
+using ClaimsModule.Application.Claims.Queries.GetClaimDetail;
 using ClaimsModule.Application.Claims.Queries.ListClaims;
 using ClaimsModule.Domain.Entities;
 
@@ -10,7 +11,9 @@ public sealed class ClaimMappingProfile : Profile
     public ClaimMappingProfile()
     {
         CreateMap<Claim, ClaimListItemDto>();
-        CreateMap<ClaimDocument, ClaimDocumentDto>();
+        CreateMap<Claim, ClaimDetailDto>();
+        CreateMap<ClaimDocument, ClaimDocumentDto>()
+            .ForMember(dst => dst.DownloadUrl, opt => opt.Ignore());
         CreateMap<ClaimParty, ClaimPartyDto>();
         CreateMap<ClaimRiskObject, ClaimRiskObjectDto>();
         CreateMap<LossEvent, LossEventDto>();
