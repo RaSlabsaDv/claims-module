@@ -10,7 +10,9 @@ using ClaimsModule.Application.Claims.Queries.GetClaimAuditLog;
 using ClaimsModule.Application.Claims.Queries.GetClaimDetail;
 using ClaimsModule.Application.Claims.Queries.GetClaimDocuments;
 using ClaimsModule.Application.Claims.Queries.ListClaims;
+using ClaimsModule.Application.Common.Exceptions;
 using ClaimsModule.Application.Common.Interfaces;
+using ClaimsModule.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,24 +22,25 @@ namespace ClaimsModule.API.Controllers.Claims;
 [ApiController]
 [Route("api/claims")]
 [Authorize]
-public sealed class ClaimsController(ISender sender) : ControllerBase
+public sealed class ClaimsController(ISender sender, ICurrentUserService currentUser) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> ListClaims(
-        [AsParameters] ListClaimsRequest request,
+        [FromQuery] ClaimStatus? status,
+        [FromQuery] DateTimeOffset? dateFrom,
+        [FromQuery] DateTimeOffset? dateTo,
+        [FromQuery] Guid? assignedHandlerId,
+        [FromQuery] string? causeOfLossCode,
+        [FromQuery] Guid? policyId,
+        [FromQuery] string? search,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
         CancellationToken ct = default)
     {
         var result = await sender.Send(new ListClaimsQuery(
-            new ClaimListFilter(
-                request.Status,
-                request.DateFrom,
-                request.DateTo,
-                request.AssignedHandlerId,
-                request.CauseOfLossCode,
-                request.PolicyId,
-                request.Search),
-            request.Page,
-            request.PageSize), ct);
+            new ClaimListFilter(status, dateFrom, dateTo, assignedHandlerId, causeOfLossCode, policyId, search),
+            page,
+            pageSize), ct);
 
         return Ok(result);
     }
@@ -69,10 +72,27 @@ public sealed class ClaimsController(ISender sender) : ControllerBase
 
     [HttpPost]
     public async Task<IActionResult> CreateClaim(
-        [FromBody] CreateClaimCommand command,
+        [FromBody] CreateClaimRequest request,
         CancellationToken ct = default)
     {
-        var result = await sender.Send(command, ct);
+        var organisationId = currentUser.OrganisationId
+            ?? throw new UnauthorizedException();
+
+        var result = await sender.Send(new CreateClaimCommand(
+            OrganisationId: organisationId,
+            PolicyId: request.PolicyId,
+            PolicyNumber: request.PolicyNumber,
+            ClientName: request.ClientName,
+            Severity: request.Severity,
+            AssignedHandlerId: request.AssignedHandlerId,
+            Notes: request.Notes,
+            LossDate: request.LossDate,
+            LossDescription: request.LossDescription,
+            LossLocation: request.LossLocation,
+            CauseOfLossCode: request.CauseOfLossCode,
+            EstimatedLossAmount: request.EstimatedLossAmount,
+            PoliceReportNumber: request.PoliceReportNumber), ct);
+
         return CreatedAtAction(nameof(GetClaimDetail), new { id = result.ClaimId }, result);
     }
 
@@ -84,7 +104,7 @@ public sealed class ClaimsController(ISender sender) : ControllerBase
     {
         await sender.Send(new TransitionClaimStatusCommand(
             id,
-            request.RowVersion,
+            Convert.FromBase64String(request.RowVersion),
             request.TargetStatus,
             request.Reason), ct);
 
@@ -119,7 +139,7 @@ public sealed class ClaimsController(ISender sender) : ControllerBase
     {
         var partyId = await sender.Send(new AddPartyCommand(
             ClaimId: id,
-            RowVersion: request.RowVersion,
+            RowVersion: Convert.FromBase64String(request.RowVersion),
             PartyRole: request.PartyRole,
             PartyType: request.PartyType,
             FirstName: request.FirstName,
@@ -139,7 +159,7 @@ public sealed class ClaimsController(ISender sender) : ControllerBase
         [FromBody] RemovePartyRequest request,
         CancellationToken ct = default)
     {
-        await sender.Send(new RemovePartyCommand(id, partyId, request.RowVersion), ct);
+        await sender.Send(new RemovePartyCommand(id, partyId, Convert.FromBase64String(request.RowVersion)), ct);
         return NoContent();
     }
 
@@ -151,7 +171,7 @@ public sealed class ClaimsController(ISender sender) : ControllerBase
     {
         var riskObjectId = await sender.Send(new AddRiskObjectCommand(
             ClaimId: id,
-            RowVersion: request.RowVersion,
+            RowVersion: Convert.FromBase64String(request.RowVersion),
             AssetType: request.AssetType,
             AssetDescription: request.AssetDescription,
             DamageDescription: request.DamageDescription,
@@ -169,7 +189,7 @@ public sealed class ClaimsController(ISender sender) : ControllerBase
     {
         var documentId = await sender.Send(new UploadDocumentCommand(
             id,
-            request.RowVersion,
+            Convert.FromBase64String(request.RowVersion),
             request.DocumentType,
             request.DocumentName,
             request.File.ContentType,
