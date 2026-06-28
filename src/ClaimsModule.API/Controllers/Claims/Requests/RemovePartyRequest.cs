@@ -1,3 +1,3 @@
 namespace ClaimsModule.API.Controllers.Claims;
 
-public sealed record RemovePartyRequest(byte[] RowVersion);
+public sealed record RemovePartyRequest(string RowVersion);

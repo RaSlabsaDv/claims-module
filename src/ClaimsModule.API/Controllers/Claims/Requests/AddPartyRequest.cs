@@ -3,7 +3,7 @@ using ClaimsModule.Domain.Enums;
 namespace ClaimsModule.API.Controllers.Claims;
 
 public sealed record AddPartyRequest(
-    byte[] RowVersion,
+    string RowVersion,
     PartyRole PartyRole,
     PartyType PartyType,
     string? FirstName,

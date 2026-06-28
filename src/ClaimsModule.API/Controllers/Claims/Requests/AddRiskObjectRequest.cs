@@ -3,7 +3,7 @@ using ClaimsModule.Domain.Enums;
 namespace ClaimsModule.API.Controllers.Claims;
 
 public sealed record AddRiskObjectRequest(
-    byte[] RowVersion,
+    string RowVersion,
     AssetType AssetType,
     string AssetDescription,
     string? DamageDescription,

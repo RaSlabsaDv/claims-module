@@ -16,6 +16,7 @@ public sealed record ClaimDetailDto(
     Guid? AssignedHandlerId,
     string? ClosureReason,
     string? Notes,
+    byte[] RowVer,
     LossEventDto? LossEvent,
     IReadOnlyList<ClaimPartyDto> Parties,
     IReadOnlyList<ClaimRiskObjectDto> RiskObjects

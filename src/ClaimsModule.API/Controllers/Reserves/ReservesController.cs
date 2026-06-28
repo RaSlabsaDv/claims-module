@@ -31,7 +31,7 @@ public sealed class ReservesController(ISender sender) : ControllerBase
     {
         var reserveId = await sender.Send(new OpenReserveCommand(
             ClaimId: claimId,
-            RowVersion: request.RowVersion,
+            RowVersion: Convert.FromBase64String(request.RowVersion),
             ComponentType: request.ComponentType,
             Amount: request.Amount,
             ChangeReason: request.ChangeReason,
@@ -48,7 +48,7 @@ public sealed class ReservesController(ISender sender) : ControllerBase
     {
         await sender.Send(new AdjustReserveCommand(
             ReserveId: reserveId,
-            RowVersion: request.RowVersion,
+            RowVersion: Convert.FromBase64String(request.RowVersion),
             Amount: request.Amount,
             ChangeReason: request.ChangeReason), ct);
 
@@ -65,7 +65,7 @@ public sealed class ReservesController(ISender sender) : ControllerBase
         await sender.Send(new ApproveReserveCommand(
             ReserveId: reserveId,
             TransactionId: request.TransactionId,
-            RowVersion: request.RowVersion), ct);
+            RowVersion: Convert.FromBase64String(request.RowVersion)), ct);
 
         return NoContent();
     }
@@ -81,7 +81,7 @@ public sealed class ReservesController(ISender sender) : ControllerBase
             ReserveId: reserveId,
             TransactionId: request.TransactionId,
             RejectionReason: request.RejectionReason,
-            RowVersion: request.RowVersion), ct);
+            RowVersion: Convert.FromBase64String(request.RowVersion)), ct);
 
         return NoContent();
     }
