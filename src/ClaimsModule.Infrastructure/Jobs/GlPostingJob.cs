@@ -11,12 +11,16 @@ public sealed class GlPostingJob(
     IReserveRepository reserveRepository,
     IUnitOfWork unitOfWork,
     IAuditLogService auditLog,
-    ILogger<GlPostingJob> logger,
-    PerformContext context)
+    ILogger<GlPostingJob> logger)
 {
     [AutomaticRetry(Attempts = 3)]
-    public async Task ExecuteAsync(Guid reserveHistoryId, string idempotencyKey)
+    public async Task ExecuteAsync(
+        Guid reserveHistoryId,
+        string idempotencyKey,
+        PerformContext performContext)
     {
+        var jobId = performContext.BackgroundJob.Id;
+
         var transaction = await reserveRepository.GetTransactionByIdAsync(reserveHistoryId);
 
         if (transaction is null)
@@ -25,14 +29,11 @@ public sealed class GlPostingJob(
             return;
         }
 
-        // Idempotency check — ТЗ Section 12.1
         if (transaction.PostingStatus == GlPostingStatus.Posted)
         {
             logger.LogInformation("GL Posting: {Key} already posted. Skipping.", idempotencyKey);
             return;
         }
-
-        var jobId = context.BackgroundJob.Id;
 
         try
         {
