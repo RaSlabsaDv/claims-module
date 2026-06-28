@@ -26,32 +26,34 @@ public sealed class OpenReserveCommandHandler
 
         claimRepository.SetOriginalRowVersion(claim, request.RowVersion);
 
-         var reserve = ClaimReserveComponent.Create(
+        var reserve = ClaimReserveComponent.Create(
             claimId: request.ClaimId,
             componentType: request.ComponentType,
             createdByUserId: userId,
             notes: request.Notes);
-
-        var changeSequence = 1;
+        
+        var changeSequence = await reserveRepository.GetNextChangeSequenceAsync(reserve.Id, ct);
+        
         var transaction = reserve.AddTransaction(
             amount: request.Amount,
             transactionType: ReserveTransactionType.Add,
             changeReason: request.ChangeReason,
             submittedByUserId: userId,
             changeSequence: changeSequence);
-
-        await reserveRepository.AddAsync(reserve, ct);
-        await unitOfWork.SaveChangesAsync(ct);
-
+        
         var approvalLevel = ClaimReserveComponent.DetermineRequiredApprovalLevel(request.Amount);
-
+        
         if (approvalLevel == ApprovalLevel.AutoApproved)
         {
             transaction.AutoApprove();
             reserve.ApplyApprovedTransaction(transaction.Id, transaction.NewBalance);
-
-            glPostingJobScheduler.EnqueueGlPosting(transaction.Id, transaction.IdempotencyKey);
         }
+        
+        await reserveRepository.AddAsync(reserve, ct);
+        await unitOfWork.SaveChangesAsync(ct);
+        
+        if (approvalLevel == ApprovalLevel.AutoApproved)
+            glPostingJobScheduler.EnqueueGlPosting(transaction.Id, transaction.IdempotencyKey);
 
         await auditLog.LogAsync(
             claimId: request.ClaimId,

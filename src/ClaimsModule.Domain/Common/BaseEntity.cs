@@ -32,4 +32,6 @@ public abstract class BaseEntity
         DeletedAt = DateTimeOffset.UtcNow;
         SetUpdated(userId);
     }
+
+    protected void SetId(Guid id) => Id = id;
 }

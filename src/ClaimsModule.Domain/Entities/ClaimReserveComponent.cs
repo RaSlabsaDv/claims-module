@@ -43,6 +43,8 @@ public sealed class ClaimReserveComponent : BaseEntity
             Notes = notes
         };
 
+        reserve.SetId(Guid.NewGuid());
+
         reserve.SetCreated(createdByUserId);
 
         return reserve;

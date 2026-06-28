@@ -12,6 +12,9 @@ public sealed class ClaimReserveComponentConfiguration : BaseEntityConfiguration
 
         builder.ToTable("ClaimReserveComponents");
 
+        builder.Property(e => e.Id)
+            .ValueGeneratedNever();
+
         builder.Property(e => e.ClaimId)
             .IsRequired();
 
