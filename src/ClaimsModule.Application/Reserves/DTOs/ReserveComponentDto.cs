@@ -11,5 +11,6 @@ public sealed record ReserveComponentDto(
     string? Notes,
     DateTimeOffset CreatedAt,
     DateTimeOffset? UpdatedAt,
+    byte[] RowVer,
     IReadOnlyList<ReserveHistoryDto> Transactions
 );
