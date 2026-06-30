@@ -1,0 +1,46 @@
+.status-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  background-color: #e0e0e0;
+  color: #424242;
+
+  &[data-status='Open'] {
+    background-color: #e3f2fd;
+    color: #1565c0;
+  }
+
+  &[data-status='UnderInvestigation'] {
+    background-color: #fff3e0;
+    color: #e65100;
+  }
+
+  &[data-status='PendingPayment'] {
+    background-color: #f3e5f5;
+    color: #6a1b9a;
+  }
+
+  &[data-status='Closed'] {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  &[data-status='Withdrawn'],
+  &[data-status='Rejected'] {
+    background-color: #fbe9e7;
+    color: #c62828;
+  }
+
+  &[data-status='PendingApproval'] {
+    background-color: #fff8e1;
+    color: #f9a825;
+  }
+
+  &[data-status='Approved'],
+  &[data-status='AutoApproved'] {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+}
