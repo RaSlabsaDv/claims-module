@@ -31,10 +31,11 @@ jobs:
         run: dotnet build ClaimsModule.sln --no-restore --configuration Release
 
       - name: Publish
-        run: dotnet publish src/ClaimsModule.API/ClaimsModule.API.csproj \
-          --no-build \
-          --configuration Release \
-          --output ./publish
+        run: |
+          dotnet publish src/ClaimsModule.API/ClaimsModule.API.csproj \
+            --no-build \
+            --configuration Release \
+            --output ./publish
 
       - name: Deploy to Azure App Service
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
