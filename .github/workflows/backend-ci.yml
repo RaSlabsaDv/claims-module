@@ -1,0 +1,45 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/ClaimsModule.**/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/ClaimsModule.**/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore ClaimsModule.sln
+
+      - name: Build
+        run: dotnet build ClaimsModule.sln --no-restore --configuration Release
+
+      - name: Publish
+        run: dotnet publish src/ClaimsModule.API/ClaimsModule.API.csproj \
+          --no-build \
+          --configuration Release \
+          --output ./publish
+
+      - name: Deploy to Azure App Service
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ secrets.AZURE_APP_SERVICE_NAME }}
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+          package: ./publish
