@@ -137,7 +137,7 @@ public sealed class ClaimsController(ISender sender, ICurrentUserService current
         [FromBody] AddPartyRequest request,
         CancellationToken ct = default)
     {
-        var partyId = await sender.Send(new AddPartyCommand(
+        var result = await sender.Send(new AddPartyCommand(
             ClaimId: id,
             RowVersion: Convert.FromBase64String(request.RowVersion),
             PartyRole: request.PartyRole,
@@ -148,8 +148,12 @@ public sealed class ClaimsController(ISender sender, ICurrentUserService current
             Email: request.Email,
             Phone: request.Phone,
             Notes: request.Notes), ct);
-
-        return CreatedAtAction(nameof(GetClaimDetail), new { id }, new { partyId });
+    
+        return CreatedAtAction(nameof(GetClaimDetail), new { id }, new
+        {
+            partyId = result.PartyId,
+            rowVer = result.ClaimRowVer
+        });
     }
 
     [HttpDelete("{id:guid}/parties/{partyId:guid}")]

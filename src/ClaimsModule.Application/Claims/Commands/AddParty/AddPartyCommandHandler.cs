@@ -1,3 +1,4 @@
+using ClaimsModule.Application.Claims.Dtos;
 using ClaimsModule.Application.Common.Exceptions;
 using ClaimsModule.Application.Common.Interfaces;
 using ClaimsModule.Domain.Constants;
@@ -12,9 +13,9 @@ public sealed class AddPartyCommandHandler(
     IUnitOfWork unitOfWork,
     ICurrentUserService currentUser,
     IAuditLogService auditLog)
-    : IRequestHandler<AddPartyCommand, Guid>
+    : IRequestHandler<AddPartyCommand, AddPartyResult>
 {
-    public async Task<Guid> Handle(AddPartyCommand request, CancellationToken ct)
+    public async Task<AddPartyResult> Handle(AddPartyCommand request, CancellationToken ct)
     {
         var userId = currentUser.UserId ?? throw new UnauthorizedException();
 
@@ -56,6 +57,6 @@ public sealed class AddPartyCommandHandler(
                 request.Phone
             });
 
-        return party.Id;
+        return new AddPartyResult(party.Id, Convert.ToBase64String(claim.RowVer));
     }
 }

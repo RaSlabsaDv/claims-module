@@ -1,3 +1,4 @@
+using ClaimsModule.Application.Claims.Dtos;
 using ClaimsModule.Domain.Enums;
 using MediatR;
 
@@ -13,4 +14,4 @@ public sealed record AddPartyCommand(
     string? Email,
     string? Phone,
     string? Notes,
-    byte[] RowVersion) : IRequest<Guid>;
+    byte[] RowVersion) : IRequest<AddPartyResult>;

@@ -1,5 +1,6 @@
 using ClaimsModule.Application.Common.Exceptions;
 using ClaimsModule.Application.Common.Interfaces;
+using ClaimsModule.Application.Reserves.Dtos;
 using ClaimsModule.Domain.Constants;
 using ClaimsModule.Domain.Entities;
 using ClaimsModule.Domain.Enums;
@@ -15,9 +16,9 @@ public sealed class OpenReserveCommandHandler
     IUnitOfWork unitOfWork,
     ICurrentUserService currentUser,
     IGlPostingJobScheduler glPostingJobScheduler,
-    IAuditLogService auditLog) : IRequestHandler<OpenReserveCommand, Guid>
+    IAuditLogService auditLog) : IRequestHandler<OpenReserveCommand, OpenReserveResult>
 {
-    public async Task<Guid> Handle(OpenReserveCommand request, CancellationToken ct)
+    public async Task<OpenReserveResult> Handle(OpenReserveCommand request, CancellationToken ct)
     {
         var userId = currentUser.UserId ?? throw new UnauthorizedException();
 
@@ -71,6 +72,7 @@ public sealed class OpenReserveCommandHandler
                 relatedEntityId: reserve.Id,
                 relatedEntityType: nameof(ClaimReserveComponent));
 
-        return reserve.Id;
+        var updatedClaim = await claimRepository.GetByIdAsync(request.ClaimId, ct);
+        return new OpenReserveResult(reserve.Id, Convert.ToBase64String(updatedClaim!.RowVer));
     }
 }

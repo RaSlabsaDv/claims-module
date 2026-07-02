@@ -29,15 +29,19 @@ public sealed class ReservesController(ISender sender) : ControllerBase
         [FromBody] OpenReserveRequest request,
         CancellationToken ct = default)
     {
-        var reserveId = await sender.Send(new OpenReserveCommand(
+        var result = await sender.Send(new OpenReserveCommand(
             ClaimId: claimId,
-            RowVersion: Convert.FromBase64String(request.RowVersion),
             ComponentType: request.ComponentType,
             Amount: request.Amount,
             ChangeReason: request.ChangeReason,
-            Notes: request.Notes), ct);
-
-        return CreatedAtAction(nameof(ListReserves), new { claimId }, new { reserveId });
+            Notes: request.Notes,
+            RowVersion: Convert.FromBase64String(request.RowVersion)), ct);
+    
+        return CreatedAtAction(nameof(ListReserves), new { claimId }, new
+        {
+            reserveId = result.ReserveId,
+            rowVer = result.ClaimRowVer
+        });
     }
 
     [HttpPut("{reserveId:guid}")]

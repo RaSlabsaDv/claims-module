@@ -1,3 +1,4 @@
+using ClaimsModule.Application.Reserves.Dtos;
 using ClaimsModule.Domain.Enums;
 using MediatR;
 
@@ -9,4 +10,4 @@ public sealed record OpenReserveCommand(
     decimal Amount,
     string ChangeReason,
     string? Notes,
-    byte[] RowVersion) : IRequest<Guid>;
+    byte[] RowVersion) : IRequest<OpenReserveResult>;
